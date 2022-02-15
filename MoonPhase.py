@@ -1,7 +1,9 @@
 
 
+from os import sep
 import requests
 from bs4 import BeautifulSoup
+from dateutil.parser import parse
 import datetime
 
 MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"]
@@ -11,11 +13,13 @@ class MoonPhase():
 	Getting Moon phase from Observatoire Royal de Belgique
 	"""
 
-
 	def __init__(self,year) -> None:
 		self.year = year
-		self.url = "http://robinfo.oma.be/fr/astro-info/lune/phases-de-la-lune-to_replace/"
+		self.url = "http://robinfo.oma.be/en/astro-info/moon/moon-phases-to_replace/"
 		self.moon_phase_dico = {}
+
+
+		self._load_page()
 
 
 	def _get_httml_page(self):
@@ -27,16 +31,16 @@ class MoonPhase():
 		response = requests.get(self.url.replace("to_replace",str(self.year)))
 		return response
 
-	def get_page(self):
+	def _load_page(self):
 		"""
-		return moon phase by scrapping self.url
+		Load moon phase by scrapping self.url
+		the result is a dico wich associated lunation number with each moon phase : self.moon_phase_dico
 		"""
 
 		page_resp = self._get_httml_page()
 
 		if page_resp.status_code == 200: # page get correctly
-
-			moon_phase = self._extract_moon_phase(page_resp.content)
+			self._extract_moon_phase(page_resp.content)
 
 		else:
 			print("IL Y A UNE ERREUR", page_resp.status_code)
@@ -62,12 +66,21 @@ class MoonPhase():
 			lunation_number = items[0].replace("<tr><th>","")
 			items = items[1:]
 			#just remove usless thing and split date and hour
-			items = [ tuple(item.replace("</th></tr>","").strip().split("à")) for item in items if item]
+			items = [ parse(item.replace("</th></tr>","").strip()) for item in items if item]
 			self.moon_phase_dico[lunation_number] = items
 		
+	def moon_phase_of_the_day():
+		pass
+
+	def day_moon_phase(self,date_time):
+
+		for lun_number, date_moon_phase in self.moon_phase_dico.items():
+			print(lun_number,date_moon_phase,sep=" : ")
+
+
 
 if __name__ == "__main__":
 	year = datetime.datetime.today().year
 	print(year)
 	moon_phase = MoonPhase(year)
-	moon_phase.scrapping()
+	moon_phase.day_moon_phase("ca")
