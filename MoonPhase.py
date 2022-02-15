@@ -5,7 +5,7 @@
 	2. Thread qui lance le bot tout les 2 jours +/-
 	3. Moyen d'avoir le nb de jour restant avant la prochaine phase
 
-		suprimmer une entre quand elle a un nb neg de jours restant ...
+		suprimmer une entre quand elle a un nb neg de jours restant ... pas sur 
 
 """
 
@@ -41,6 +41,7 @@ class MoonPhase():
 		self._load_page()
 
 
+
 	def _get_httml_page(self):
 		"""
 		return httml page from http://robinfo.oma.be/fr/astro-info/lune/phases-de-la-lune-2022/
@@ -59,13 +60,14 @@ class MoonPhase():
 		page_resp = self._get_httml_page()
 
 		if page_resp.status_code == 200: # page get correctly
-			self._extract_moon_phase(page_resp.content)
+			self._extract_moon_phase(page_resp.content,self.moon_phase_dico)
+			return page_resp
 
 		else:
 			print("IL Y A UNE ERREUR", page_resp.status_code)
 			print(f"url : {page_resp.url}")
 
-	def _extract_moon_phase(self,html_page):
+	def _extract_moon_phase(self,html_page,moon_phase_dico):
 		"""
 		return dictionary associationg a lunation number with
 		a 4-tuple containing date+hour for those moon phase Nouvelle lune,Premier quartier,Pleine lune,Dernier quartier.
@@ -86,7 +88,7 @@ class MoonPhase():
 			items = items[1:]
 			#just remove usless thing and split date and hour
 			items = [ parse(item.replace("</th></tr>","").strip()) for item in items if item]
-			self.moon_phase_dico[lunation_number] = items
+			moon_phase_dico[lunation_number] = items
 		
 	def _build_day_moon_phase(self,lunation_nb,days_left,date,phase_id):
 		"""
@@ -125,8 +127,6 @@ class MoonPhase():
 				
 				if days_take == max_days_to_take:
 					return res
-
-
 
 
 if __name__ == "__main__":
