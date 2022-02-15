@@ -1,3 +1,20 @@
+"""
+	1. Thread qui verfie que la page n'a pas changer
+		Seulement modifier les elements qui ont changé pas besoin de remettre les autres trucs 
+
+	2. Thread qui lance le bot tout les 2 jours +/-
+	3. Moyen d'avoir le nb de jour restant avant la prochaine phase
+
+		suprimmer une entre quand elle a un nb neg de jours restant ...
+
+"""
+
+
+
+
+
+
+
 
 
 from os import sep
@@ -7,6 +24,9 @@ from dateutil.parser import parse
 import datetime
 
 MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"]
+PHASE_ID = ["New Moon","First Quarter","Full Moon","Last Quarter"]
+NUMBER_OF_PHASE = 4
+MAX_DAYS_TO_TAKE = 3
 
 class MoonPhase():
 	"""
@@ -69,13 +89,27 @@ class MoonPhase():
 			items = [ parse(item.replace("</th></tr>","").strip()) for item in items if item]
 			self.moon_phase_dico[lunation_number] = items
 		
+	def _build_day_moon_phase(self,lunation_nb,days_left,date,phase_id):
+		return (lunation_nb,days_left,date,PHASE_ID[phase_id])
+
 	def moon_phase_of_the_day():
 		pass
 
-	def day_moon_phase(self,date_time):
 
+	def day_moon_phase(self,date_time):
+		date_time = datetime.date.today()+datetime.timedelta(days=1)
+		next_phase_date = -1
+		days_take = 0
 		for lun_number, date_moon_phase in self.moon_phase_dico.items():
-			print(lun_number,date_moon_phase,sep=" : ")
+			for phase_id in range(NUMBER_OF_PHASE):
+				phase_day = date_moon_phase[phase_id]
+				days_left = phase_day.date() - date_time
+
+				if days_left.days > next_phase_date and days_take < MAX_DAYS_TO_TAKE:
+					print(self._build_day_moon_phase(lun_number,days_left.days,phase_day,phase_id))
+					next_phase_date = days_left.days
+					days_take += 1
+
 
 
 
