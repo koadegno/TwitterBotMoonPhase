@@ -99,11 +99,25 @@ class MoonPhase():
 		"""
 		return (lunation_nb,days_left,date,PHASE_ID[phase_id])
 
-	def moon_phase_of_the_day(self):
+	def to_text(self,phase_tuple):
+		lun_txt = f"Phase : {phase_tuple[3]}\nLunation number : {phase_tuple[0]}\n"
+		date = phase_tuple[2].date().strftime("%d/%m/%Y")
+		hour_txt = f"{phase_tuple[3]} date and hour : {date} at {phase_tuple[2].hour}:{phase_tuple[2].minute}:{phase_tuple[2].second}0\n"
+		days_left_txt = f"Days left before {phase_tuple[3]} : {phase_tuple[1]}\n"
+		source_txt = "source : http://robinfo.oma.be/en/astro-info/moon/ \n"
+		return lun_txt + hour_txt + days_left_txt + source_txt
+
+
+	def moon_phase_of_the_day(self,in_txt=False):
 		"""
 		return information of today using day_moon_phase function
+		
+		in_txt : boolean get the response in text or not, by default False
 		"""
-		return self.day_moon_phase(datetime.date.today(),1)
+		res = self.day_moon_phase(datetime.date.today(),1)
+		if in_txt:
+			return self.to_text(res[0])
+		return res
 
 	def day_moon_phase(self,date_time,max_days_to_take):
 		"""
